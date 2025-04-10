@@ -1,6 +1,17 @@
 from pydantic import BaseModel
 from typing import Optional, Dict
 from datetime import datetime
+from enum import Enum
+
+class SessionStatusEnum(str, Enum):
+    created = "created"
+    started = "started"
+    completed = "completed"
+    cancelled = "cancelled"
+
+class SessionUpdateStatus(BaseModel):
+    status: SessionStatusEnum
+
 
 class SessionCreate(BaseModel):
     requester_id: str
@@ -8,8 +19,6 @@ class SessionCreate(BaseModel):
     match_id: str
     location: Dict[str, float]  # {"lat": float, "lng": float}
 
-class SessionUpdateStatus(BaseModel):
-    status: str  # started | completed | cancelled
 
 class SessionOut(BaseModel):
     session_id: str
