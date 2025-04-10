@@ -46,46 +46,42 @@ Open http://127.0.0.1:8000/redoc to access the ReDoc API documentation.
 ### For Testing the APIs ###############################################
 Follow these simple steps to test and run the project automatically:
 
-1. Clean the database if needed.
+1. Clean the database if needed
 
-    Photoaid % rm test.db
-    python3.11 createTables.py
+        Photoaid % rm test.db
+        python3.11 createTables.py
 
-2. Set up a Virtual Environment:
+2. Set up a Virtual Environment
 
-    python3.11 -m venv myenv
-    This command will create a virtual environment named myenv.
+        python3.11 -m venv myenv
+        This command will create a virtual environment named myenv.
 
-3. Activate the Virtual Environment:
+3. Activate the Virtual Environment
 
-    source myenv/bin/activate
-    After activation, your terminal prompt will show (myenv) at the start.
+        source myenv/bin/activate
+        After activation, your terminal prompt will show (myenv) at the start.
 
-4. Install project dependencies:
+4. Install project dependencies
 
-    pip install -r requirements.txt
+        pip install -r requirements.txt
 
-5. Run the FastAPI Server:
+5. Run the FastAPI Server
 
-    uvicorn app.main:app --reload
-    The server will start at http://127.0.0.1:8000
+        uvicorn app.main:app --reload
+        The server will start at http://127.0.0.1:8000
 
-6. Run All Tests:
+6. Run All Tests
 
-    pytest
-    This command will automatically discover and run all test cases under app/tests/ and show the results.
+        pytest
+        This command will automatically discover and run all test cases under app/tests/ and show the results.
 
 Summary of Commands:
 
-python3.11 -m venv myenv
-
-source myenv/bin/activate
-
-pip install -r requirements.txt
-
-uvicorn app.main:app --reload
-
-pytest
+        python3.11 -m venv myenv
+        source myenv/bin/activate
+        pip install -r requirements.txt
+        uvicorn app.main:app --reload
+        pytest
 
 
 ### Database Management (SQLite) ##################################
@@ -124,20 +120,16 @@ To exit:
 
 ### Quick start ##################################
 
-python3.11 -m venv myenv
-
-source myenv/bin/activate
-
-pip install -r requirements.txt
-
-uvicorn app.main:app --reload
+        python3.11 -m venv myenv
+        source myenv/bin/activate
+        pip install -r requirements.txt
+        uvicorn app.main:app --reload
 
 
 In another terminal window:
 
-brew install sqlite3
-
-sqlite3 test.db
+        brew install sqlite3
+        sqlite3 test.db
 
 
 ### Notes #######################################
