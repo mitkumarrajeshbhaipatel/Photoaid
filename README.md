@@ -1,9 +1,11 @@
 python3.11 -m venv myenv 
+
 source myenv/bin/activate
 
 pip install -r requirements.txt
 
 uvicorn app.main:app --reload  
+<<<<<<< HEAD
 
 
 
@@ -101,3 +103,5 @@ Press CTRL+C to stop the server at any time.
 
 ✅ Setup complete! You can now develop, test, and explore your FastAPI application.
 
+=======
+>>>>>>> 5365178712d749199822f4d080cf3306af28ccf7
