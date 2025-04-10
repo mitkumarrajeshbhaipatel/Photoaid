@@ -11,3 +11,4 @@ python-socketio==5.8.0
 python-dotenv==1.0.0
 geohash==1.0
 redis==4.5.5
+email-validator
