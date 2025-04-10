@@ -12,6 +12,7 @@ uvicorn app.main:app --reload
 
 ### For database views 
 brew install sqlite3
+
 sqlite3 test.db 
 
 ### Detailed Setup ######################################################
@@ -19,6 +20,7 @@ sqlite3 test.db
 ### Project Setup Instructions ##########################################
 
 Welcome!
+
 Follow these simple steps to set up, run, and manage the project locally:
 
 1. Create Virtual Environment
@@ -82,14 +84,20 @@ To exit:
 
 
 ### Quick start ##################################
+
 python3.11 -m venv myenv
+
 source myenv/bin/activate
+
 pip install -r requirements.txt
+
 uvicorn app.main:app --reload
+
 
 In another terminal window:
 
 brew install sqlite3
+
 sqlite3 test.db
 
 
