@@ -1,5 +1,5 @@
 from app.database import Base, engine
-from app.models import user, profile, verification, report, location, match, session, chat, notification, review, badge
+from app.models import user, profile, report, location, matchmaking, session, chat, notification, review
 
 print("Creating database tables...")
 

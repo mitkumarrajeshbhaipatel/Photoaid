@@ -30,6 +30,9 @@ Follow these simple steps to set up, run, and manage the project locally:
         pip install -r requirements.txt
         This will install all required Python packages listed in the requirements.txt file.
 
+        python3.11 createTables.py
+        this will create tables in database(only needs to do first time)
+
 4. Run the FastAPI Server
 
         uvicorn app.main:app --reload
