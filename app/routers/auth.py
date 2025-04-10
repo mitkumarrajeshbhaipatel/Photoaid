@@ -5,12 +5,27 @@ from app.schemas.user import UserCreate, UserOut
 from app.services.auth import create_user, get_user_by_email, get_user_by_id, get_all_users , reset_password_request, change_password
 from app.utils.security import verify_password, create_access_token
 
+from app.services.profile import create_user_profile  # import profile service
+from app.schemas.profile import UserProfileCreate     # import profile schema
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 # Register a new user
 @router.post("/register", response_model=UserOut)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
-    return create_user(db, user)
+    # Create the user
+    new_user = create_user(db, user)
+
+    # Automatically create a blank profile for the new user
+    profile_data = UserProfileCreate(
+        user_id=new_user.id,
+        bio="",
+        avatar_url="",
+        country=""
+    )
+    create_user_profile(db, profile_data)
+
+    return new_user
 
 # Login (simple email and password check)
 @router.post("/login")

@@ -12,3 +12,7 @@ python-dotenv==1.0.0
 geohash==1.0
 redis==4.5.5
 email-validator
+pytest
+pytest-asyncio
+httpx
+sqlalchemy
