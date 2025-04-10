@@ -1,0 +1,32 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.dependencies import get_db
+from app.schemas.profile import UserProfileCreate, UserProfileOut, UserProfileUpdate
+from app.services.profile import create_user_profile, get_user_profile, update_user_profile, delete_user_profile
+
+router = APIRouter(prefix="/profiles", tags=["Profiles"])
+
+@router.post("/", response_model=UserProfileOut)
+def create_profile(profile: UserProfileCreate, db: Session = Depends(get_db)):
+    return create_user_profile(db, profile)
+
+@router.get("/{user_id}", response_model=UserProfileOut)
+def read_profile(user_id: str, db: Session = Depends(get_db)):
+    profile = get_user_profile(db, user_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profile
+
+@router.put("/{user_id}", response_model=UserProfileOut)
+def update_profile(user_id: str, profile_update: UserProfileUpdate, db: Session = Depends(get_db)):
+    updated_profile = update_user_profile(db, user_id, profile_update)
+    if not updated_profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return updated_profile
+
+@router.delete("/{user_id}")
+def delete_profile(user_id: str, db: Session = Depends(get_db)):
+    success = delete_user_profile(db, user_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return {"message": "Profile deleted successfully"}
