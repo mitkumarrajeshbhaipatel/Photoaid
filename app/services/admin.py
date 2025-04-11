@@ -22,15 +22,24 @@ def get_report(db: Session, report_id: str):
     return db.query(Report).filter(Report.report_id == report_id).first()
 
 def update_report(db: Session, report_id: str, report_update: ReportUpdate):
+    # Fetch the report by ID
     report = db.query(Report).filter(Report.report_id == report_id).first()
     if not report:
-        return None
+        return None  # Return None if the report is not found
+    
+    # Update the fields from the ReportUpdate schema
     for key, value in report_update.dict(exclude_unset=True).items():
-        setattr(report, key, value)
-    report.reviewed_at = datetime.datetime.utcnow()
-    db.commit()
-    db.refresh(report)
-    return report
+        setattr(report, key, value)  # Update only the fields that are provided
+    
+    # Set the reviewed_at timestamp
+    if report_update.reviewed_at:
+        report.reviewed_at = datetime.datetime.utcnow()  # Update reviewed_at field with current time
+    
+    db.commit()  # Commit changes to the database
+    db.refresh(report)  # Refresh the report object to get the updated data
+    return report  # Return the updated report
+
+
 
 def list_reports(db: Session):
     return db.query(Report).all()

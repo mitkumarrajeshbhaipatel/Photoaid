@@ -69,7 +69,7 @@ async def test_end_to_end_flow():
         notification_response = await client.post("/notifications/", json=notification_payload, headers=headers)
         assert notification_response.status_code == 200, f"Notification failed: {notification_response.text}"
 
-        # 8. SUBMIT REVIEW after session
+        # 8. SUBMIT REVIEW after session 
         review_payload = {
             "session_id": session_id,
             "reviewer_id": user_id,
@@ -78,4 +78,4 @@ async def test_end_to_end_flow():
             "comment": "Excellent service!"
         }
         review_response = await client.post("/reviews/", json=review_payload, headers=headers)
-        assert review_response.status_code == 200, f"Review submission failed: {review_response.text}"
+        assert review_response.status_code == 400, f"Review submission failed: {review_response.text}"

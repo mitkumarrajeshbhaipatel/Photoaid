@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from sqlalchemy import Column, String, DateTime
+from pydantic import BaseModel, conint
 from datetime import datetime
 from typing import Optional
 
@@ -6,7 +7,7 @@ class ReviewCreate(BaseModel):
     session_id: str
     reviewer_id: str
     target_user_id: str
-    rating: int
+    rating: conint(ge=1, le=5)
     comment: Optional[str] = None
 
 class ReviewOut(BaseModel):

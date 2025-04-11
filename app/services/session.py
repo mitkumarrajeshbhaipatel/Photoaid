@@ -39,11 +39,11 @@ def update_session_status(db: DBSession, session_id: str, status_update: Session
         raise HTTPException(status_code=403, detail="Unauthorized to update session.")
 
     # Prevent modifying completed/cancelled sessions
-    if session.status in ["completed", "cancelled"]:
+    if session.status in ["end", "cancelled"]:
         raise HTTPException(status_code=409, detail="Session already finalized.")
 
     # Validate status transition
-    if status_update.status not in ["started", "completed", "cancelled"]:
+    if status_update.status not in ["started", "completed","end", "cancelled"]:
         raise HTTPException(status_code=400, detail="Invalid session status update.")
 
     if status_update.status == "started":

@@ -7,6 +7,7 @@ class SessionStatusEnum(str, Enum):
     created = "created"
     started = "started"
     completed = "completed"
+    end = "end"
     cancelled = "cancelled"
 
 class SessionUpdateStatus(BaseModel):

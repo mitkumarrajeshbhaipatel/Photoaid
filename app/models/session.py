@@ -9,7 +9,7 @@ class Session(Base):
     requester_id = Column(String, nullable=False)
     helper_id = Column(String, nullable=False)
     match_id = Column(String, nullable=False)
-    status = Column(String, default="created")  # created | started | completed | cancelled
+    status = Column(String, default="created")  # created | started | completed | cancelled | end
     location = Column(JSON, nullable=False)  # {"lat": float, "lng": float}
     check_in_time = Column(DateTime, nullable=True)
     check_out_time = Column(DateTime, nullable=True)
