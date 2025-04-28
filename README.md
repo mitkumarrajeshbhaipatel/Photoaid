@@ -70,6 +70,8 @@ Follow these simple steps to test and run the project automatically:
         uvicorn app.main:app --reload
         The server will start at http://127.0.0.1:8000
 
+        uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
 6. Run All Tests
 
         pytest

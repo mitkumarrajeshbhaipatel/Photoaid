@@ -2,7 +2,9 @@ from pydantic import BaseModel
 from typing import Optional, List
 
 class UserProfileBase(BaseModel):
+    name : Optional[str] = None
     bio: Optional[str] = None
+    is_available: bool
     avatar_url: Optional[str] = None
     country: Optional[str] = None
     trust_badges: List[str] = []
@@ -21,3 +23,13 @@ class UserProfileOut(UserProfileBase):
 
     class Config:
         orm_mode = True
+
+class UserEditableProfileUpdate(BaseModel):
+    bio: Optional[str] = None
+    country: Optional[str] = None
+    avatar_url: Optional[str] = None
+    is_available: Optional[bool] = None
+
+class FullProfileUpdate(UserProfileBase):
+    pass
+

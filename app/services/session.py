@@ -43,7 +43,7 @@ def update_session_status(db: DBSession, session_id: str, status_update: Session
         raise HTTPException(status_code=409, detail="Session already finalized.")
 
     # Validate status transition
-    if status_update.status not in ["started", "completed","end", "cancelled"]:
+    if status_update.status not in ["started", "completed", "cancelled"]:
         raise HTTPException(status_code=400, detail="Invalid session status update.")
 
     if status_update.status == "started":
@@ -59,7 +59,34 @@ def update_session_status(db: DBSession, session_id: str, status_update: Session
 
 
 
-
+'''
 
 def get_session_by_match_id(db: DBSession, match_id: str):
-    return db.query(Session).filter(Session.match_id == match_id).first()
+    allowed_statuses = ["created", "started", "completed", "cancelled"]
+    return db.query(Session).filter(
+        Session.match_id == match_id,
+        Session.status.in_(allowed_statuses)
+    ).first()
+
+    #return db.query(Session).filter(Session.match_id == match_id).first()
+'''
+def get_session_by_match_id(db: DBSession, match_id: str):
+    allowed_statuses = ["created", "started"]
+
+    # Get current time and threshold
+    now = datetime.datetime.utcnow()
+    cutoff = now - datetime.timedelta(days=1)
+
+    # Fetch active or recent sessions only
+    return db.query(Session).filter(
+        Session.match_id == match_id,
+        (
+            or_( (Session.status.in_(allowed_statuses)) ,
+
+                and_  (
+                    (Session.status.in_(["completed", "cancelled"])) ,
+                    (Session.updated_at >= cutoff)
+                )
+            )
+        )
+    ).first()

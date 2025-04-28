@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user
-from app.schemas.location import LocationCreate, LocationOut
+from app.schemas.location import LocationCreate, LocationOut , NearbyUserOut
 from app.services.location import update_user_location, get_nearby_users
 from typing import List
 from app.models.user import User
@@ -27,7 +27,7 @@ def update_location(
         raise HTTPException(status_code=403, detail="Not authorized to update this location")
     return update_user_location(db, location)
 
-@router.get("/nearby/{user_id}", response_model=List[LocationOut])
+@router.get("/nearby/{user_id}", response_model=List[NearbyUserOut])
 def get_nearby(
     user_id: str,
     radius_km: float = Query(5, gt=0),

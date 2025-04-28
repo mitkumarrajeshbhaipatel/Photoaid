@@ -1,10 +1,22 @@
 from sqlalchemy.orm import Session
 from app.models.review import Review, Badge
+from app.models.profile import UserProfile
 from app.schemas.review import ReviewCreate
 import uuid
 import datetime
 
+
 def create_review(db: Session, review: ReviewCreate):
+
+    existing_review = db.query(Review).filter(
+        Review.session_id == review.session_id,
+        Review.reviewer_id == review.reviewer_id
+    ).first()
+
+    if existing_review:
+        raise ValueError("User has already submitted a review for this session.")
+        
+    # Create the review
     db_review = Review(
         review_id=str(uuid.uuid4()),
         session_id=review.session_id,
@@ -18,29 +30,38 @@ def create_review(db: Session, review: ReviewCreate):
     db.commit()
     db.refresh(db_review)
 
-    assign_badge(db, review.target_user_id)
+    # Assign a badge and update profile
+    badge = assign_badge(db, review.target_user_id)
+
+    # Update user's profile stats
+    profile = db.query(UserProfile).filter(UserProfile.user_id == review.target_user_id).first()
+    if profile:
+        reviews = db.query(Review).filter(Review.target_user_id == review.target_user_id).all()
+        total_reviews = len(reviews)
+        average_rating = sum([r.rating for r in reviews]) / total_reviews if total_reviews > 0 else 0.0
+
+        profile.total_sessions = total_reviews
+        profile.average_rating = average_rating
+
+        # Add badge to trust_badges if not already included
+        if badge and badge.badge_type not in profile.trust_badges:
+            profile.trust_badges.append(badge.badge_type)
+
+        db.commit()
+        db.refresh(profile)
 
     return db_review
 
-from sqlalchemy.orm import Session as DBSession
-from app.models.review import Review, Badge
-import datetime
 
-def assign_badge(db: DBSession, user_id: str):
-    # Fetch all reviews for the target user
+def assign_badge(db: Session, user_id: str):
     reviews = db.query(Review).filter(Review.target_user_id == user_id).all()
 
     if not reviews:
-        return None  # No reviews, no badge assignment
+        return None
 
-    # Calculate the average rating from all reviews
-    total_rating = sum([review.rating for review in reviews])
-    average_rating = total_rating / len(reviews)
-
-    # Count the total number of reviews
     total_reviews = len(reviews)
+    average_rating = sum([r.rating for r in reviews]) / total_reviews
 
-    # Determine the badge based on the average rating and review count
     badge_type = None
     if total_reviews >= 15 and average_rating == 5:
         badge_type = "Platinum Reviewer"
@@ -53,40 +74,31 @@ def assign_badge(db: DBSession, user_id: str):
     elif total_reviews >= 1:
         badge_type = "Newbie"
 
-    # Check if the user already has a badge of this type
     existing_badge = db.query(Badge).filter(Badge.user_id == user_id).first()
 
     if existing_badge:
-        # If the badge type is different, update the badge
         if existing_badge.badge_type != badge_type:
-            # Update the existing badge to reflect the new type
             existing_badge.badge_type = badge_type
-            existing_badge.awarded_at = datetime.datetime.utcnow()  # Refresh the award date
+            existing_badge.awarded_at = datetime.datetime.utcnow()
             db.commit()
             db.refresh(existing_badge)
-            return existing_badge
-        else:
-            # If the badge type is the same, no changes are made
-            return existing_badge
+        return existing_badge
 
-    # If the user does not have a badge, assign the new badge
-    badge = Badge(
+    new_badge = Badge(
         user_id=user_id,
         badge_type=badge_type,
         awarded_at=datetime.datetime.utcnow()
     )
-    db.add(badge)
+    db.add(new_badge)
     db.commit()
-    db.refresh(badge)
+    db.refresh(new_badge)
 
-    return badge
-
-
+    return new_badge
 
 
 def get_user_badge(db: Session, user_id: str):
-    badge = db.query(Badge).filter(Badge.user_id == user_id).first()
-    return badge
+    return db.query(Badge).filter(Badge.user_id == user_id).first()
+
 
 def get_reviews_for_user(db: Session, user_id: str):
     return db.query(Review).filter(Review.target_user_id == user_id).all()

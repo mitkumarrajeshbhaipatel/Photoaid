@@ -7,6 +7,7 @@ from app.utils.security import verify_password, create_access_token
 
 from app.services.profile import create_user_profile  # import profile service
 from app.schemas.profile import UserProfileCreate     # import profile schema
+from app.schemas.user import UserOut
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -19,7 +20,9 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     # Automatically create a blank profile for the new user
     profile_data = UserProfileCreate(
         user_id=new_user.id,
+        name=new_user.name,
         bio="",
+        is_available=False,
         avatar_url="",
         country=""
     )
@@ -35,7 +38,7 @@ def login_user(email: str, password: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     
     access_token = create_access_token(data={"sub": db_user.id})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "user": UserOut.from_orm(db_user)}
 # Get user by ID
 @router.get("/user/{user_id}", response_model=UserOut)
 def get_user(user_id: str, db: Session = Depends(get_db)):
