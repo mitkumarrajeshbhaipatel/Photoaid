@@ -3,6 +3,20 @@ from app.models.notification import Notification
 from app.schemas.notification import NotificationCreate
 import uuid
 import datetime
+from app.utils.websocket import manager  
+
+async def create_notification(db: Session, notification: NotificationCreate):
+    ...
+    # After saving in DB:
+    await manager.send_personal_message({
+        "type": "notification",
+        "title": notification.title,
+        "message": notification.message,
+        "notification_id": db_notification.notification_id,
+        "notification_type": notification.notification_type,
+        "created_at": db_notification.created_at.isoformat()
+    }, notification.user_id)
+
 
 def create_notification(db: Session, notification: NotificationCreate):
     db_notification = Notification(
