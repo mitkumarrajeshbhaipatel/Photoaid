@@ -7,6 +7,9 @@ from fastapi import HTTPException
 from app.models.user import User
 from app.models.matchmaking import MatchRequest
 
+from app.schemas.notification import NotificationCreate
+from app.services.notification import create_notification
+
 def create_session(db: DBSession, session_data: SessionCreate):
     # Check if a session already exists for the same match_id
     existing = db.query(Session).filter(Session.match_id == session_data.match_id).first()
@@ -25,6 +28,16 @@ def create_session(db: DBSession, session_data: SessionCreate):
     db.add(session)
     db.commit()
     db.refresh(session)
+
+    for uid, role in [(session_data.requester_id, "Requester"), (session_data.helper_id, "Helper")]:
+        notification = NotificationCreate(
+            user_id=uid,
+            title="New Session Created",
+            message=f"You have been added as a {role.lower()} in a new session.",
+            notification_type="session"
+        )
+        create_notification(db, notification)
+
     return session
 
 
@@ -55,6 +68,15 @@ def update_session_status(db: DBSession, session_id: str, status_update: Session
 
     db.commit()
     db.refresh(session)
+
+    for uid in [session.requester_id, session.helper_id]:
+        notification = NotificationCreate(
+            user_id=uid,
+            title="Session Updated",
+            message=f"The session was marked as {status_update.status}.",
+            notification_type="session"
+        )
+        create_notification(db, notification)
     return session
 
 
@@ -83,7 +105,7 @@ def get_session_by_match_id(db: DBSession, match_id: str):
         (
             or_( (Session.status.in_(allowed_statuses)) ,
 
-                and_  (
+                and_(
                     (Session.status.in_(["completed", "cancelled"])) ,
                     (Session.updated_at >= cutoff)
                 )

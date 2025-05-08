@@ -10,6 +10,10 @@ from fastapi import HTTPException
 from app.schemas.session import SessionCreate
 from app.services.session import create_session
 
+from app.schemas.notification import NotificationCreate
+from app.services.notification import create_notification
+
+
 def create_match_request(db: Session, match_data: MatchRequestCreate):
     match_request = MatchRequest(
         match_id=str(uuid.uuid4()),
@@ -26,6 +30,13 @@ def create_match_request(db: Session, match_data: MatchRequestCreate):
     db.add(match_request)
     db.commit()
     db.refresh(match_request)
+
+    notification = NotificationCreate(
+        user_id=match_data.receiver_id,
+        title="New Photo Request",
+        message="You received a new request to take a photo.",
+        notification_type="session"
+    )
     return match_request
 
 
@@ -52,6 +63,20 @@ def respond_to_match(db: Session, match_id: str, update_data: MatchRequestUpdate
 
     db.commit()
     db.refresh(match_request)
+
+    # ✅ Notify requester of response
+    if update_data.status == "accepted":
+        message = "Your photo request has been accepted. Session created!"
+    else:
+        message = "Your photo request was declined."
+
+    notification = NotificationCreate(
+        user_id=match_request.requester_id,
+        title="Request Update",
+        message=message,
+        notification_type="session"
+    )
+    create_notification(db, notification)
 
     # ✅ If accepted, create a session
     if update_data.status == "accepted":

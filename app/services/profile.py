@@ -4,6 +4,10 @@ from app.models.user import User
 from app.schemas.profile import UserProfileCreate, UserProfileUpdate
 from fastapi import APIRouter, Depends, HTTPException
 
+from app.schemas.notification import NotificationCreate
+from app.services.notification import create_notification
+
+
 def create_user_profile(db: Session, profile: UserProfileCreate):
     # First check if the user exists
     user = db.query(User).filter(User.id == profile.user_id).first()
@@ -20,6 +24,16 @@ def create_user_profile(db: Session, profile: UserProfileCreate):
     db.add(db_profile)
     db.commit()
     db.refresh(db_profile)
+
+
+    notification = NotificationCreate(
+        user_id=profile.user_id,
+        title="Profile Created",
+        message="Your user profile was successfully created.",
+        notification_type="system"
+    )
+    create_notification(db, notification)
+
     return db_profile
 
 def get_user_profile(db: Session, user_id: str):
@@ -33,6 +47,15 @@ def update_user_profile(db: Session, user_id: str, profile_update: UserProfileUp
         setattr(profile, key, value)
     db.commit()
     db.refresh(profile)
+    
+    notification = NotificationCreate(
+        user_id=user_id,
+        title="Profile Updated",
+        message="Your profile information was successfully updated.",
+        notification_type="system"
+    )
+    create_notification(db, notification)
+
     return profile
 
 def delete_user_profile(db: Session, user_id: str):

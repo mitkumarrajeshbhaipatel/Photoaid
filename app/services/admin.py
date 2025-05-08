@@ -4,6 +4,10 @@ from app.schemas.report import ReportCreate, ReportUpdate
 import uuid
 import datetime
 
+from app.schemas.notification import NotificationCreate
+from app.services.notification import create_notification
+
+
 def create_report(db: Session, report: ReportCreate):
     db_report = Report(
         report_id=str(uuid.uuid4()),
@@ -16,6 +20,16 @@ def create_report(db: Session, report: ReportCreate):
     db.add(db_report)
     db.commit()
     db.refresh(db_report)
+
+    # ✅ Notify admin (or staff account)
+    notification = NotificationCreate(
+        user_id="admin",  # 🔁 Replace with actual admin user ID if available
+        title="New Report Submitted",
+        message=f"A user has reported another user for: {report.reason}",
+        notification_type="admin"
+    )
+    create_notification(db, notification)
+
     return db_report
 
 def get_report(db: Session, report_id: str):
@@ -37,6 +51,16 @@ def update_report(db: Session, report_id: str, report_update: ReportUpdate):
     
     db.commit()  # Commit changes to the database
     db.refresh(report)  # Refresh the report object to get the updated data
+
+    # ✅ Notify reporter
+    notification = NotificationCreate(
+        user_id=report.reporter_id,
+        title="Report Reviewed",
+        message=f"Your report has been reviewed and marked as: {report.status}",
+        notification_type="admin"
+    )
+    create_notification(db, notification)
+    
     return report  # Return the updated report
 
 
