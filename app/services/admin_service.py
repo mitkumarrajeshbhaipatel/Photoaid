@@ -49,7 +49,7 @@ def get_all_reports(db: Session) -> list[ReportResponse]:
             user_id=r.target_user_id,
             reported_by=r.reporter_id,
             reason=r.reason,
-            timestamp=r.timestamp
+            timestamp=r.reviewed_at
         )
         for r in reports
     ]
