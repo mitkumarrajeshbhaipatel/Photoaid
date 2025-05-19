@@ -46,7 +46,7 @@ def get_all_reports(db: Session) -> list[ReportResponse]:
     reports = db.query(Report).all()
     return [
         ReportResponse(
-            user_id=r.reported_user_id,
+            user_id=r.target_user_id,
             reported_by=r.reporter_user_id,
             reason=r.reason,
             timestamp=r.timestamp

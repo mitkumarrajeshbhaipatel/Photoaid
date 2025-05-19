@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column, Boolean, String, DateTime
 from sqlalchemy.types import Text
 from app.database import Base
 import datetime
@@ -12,6 +12,7 @@ class Report(Base):
     target_user_id = Column(String, nullable=False)
     reason = Column(Text, nullable=False)
     status = Column(String, default="pending")  # pending | resolved
+    resolved = Column(Boolean, default=False)
     action_taken = Column(String, nullable=True)  # ban | warn | ignore
     reviewed_by = Column(String, nullable=True)
     reviewed_at = Column(DateTime, nullable=True)
