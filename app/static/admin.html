@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-7xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-4">🛠️ Admin Dashboard</h1>
+
+    <!-- Tab Navigation -->
+    <div class="flex space-x-4 mb-6">
+      <button onclick="showTab('statsSection')" class="tab-btn bg-blue-100 px-4 py-2 rounded">📊 Stats</button>
+      <button onclick="showTab('unverifiedSection')" class="tab-btn bg-blue-100 px-4 py-2 rounded">🧍 Unverified</button>
+      <button onclick="showTab('reportSection')" class="tab-btn bg-blue-100 px-4 py-2 rounded">🚨 Reports</button>
+    </div>
+
+    <!-- Dashboard Stats -->
+    <section id="statsSection" class="mb-8 hidden">
+      <h2 class="text-2xl font-semibold mb-2">📊 Statistics</h2>
+      <ul id="statsList" class="grid grid-cols-2 md:grid-cols-3 gap-4 bg-white p-4 rounded shadow"></ul>
+    </section>
+
+    <!-- Unverified Users -->
+    <section id="unverifiedSection" class="mb-8 hidden">
+      <h2 class="text-2xl font-semibold mb-2">🧍 Unverified Users</h2>
+      <table class="min-w-full bg-white rounded shadow text-sm">
+        <thead class="bg-gray-200">
+          <tr><th class="p-2 text-left">Email</th><th class="p-2">Actions</th></tr>
+        </thead>
+        <tbody id="unverifiedTable"></tbody>
+      </table>
+    </section>
+
+    <!-- Reports -->
+    <section id="reportSection" class="mb-8 hidden">
+      <h2 class="text-2xl font-semibold mb-2">🚨 Reported Users</h2>
+      <table class="min-w-full bg-white rounded shadow text-sm">
+        <thead class="bg-gray-200">
+          <tr><th class="p-2 text-left">User</th><th class="p-2">Reported By</th><th class="p-2">Reason</th><th class="p-2">Time</th><th class="p-2">Action</th></tr>
+        </thead>
+        <tbody id="reportTable"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const API_BASE = "/admin_service";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      showTab("statsSection");
+      loadStats();
+      loadUnverified();
+      loadReports();
+    });
+
+    function showTab(sectionId) {
+      const sections = ["statsSection", "unverifiedSection", "reportSection"];
+      sections.forEach(id => {
+        document.getElementById(id).classList.add("hidden");
+      });
+      document.getElementById(sectionId).classList.remove("hidden");
+    }
+
+    function apiHeaders() {
+      return {
+        "Content-Type": "application/json"
+      };
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch(API_BASE + "/stats", { headers: apiHeaders() });
+        const data = await res.json();
+        const statsList = document.getElementById("statsList");
+        statsList.innerHTML = "";
+        for (const [key, value] of Object.entries(data)) {
+          statsList.innerHTML += `<li class="border p-2 rounded bg-gray-50"><strong>${key.replace(/_/g, ' ')}:</strong> ${value}</li>`;
+        }
+      } catch (error) {
+        alert("Failed to load stats.");
+      }
+    }
+
+    async function loadUnverified() {
+      try {
+        const res = await fetch(API_BASE + "/unverified-users", { headers: apiHeaders() });
+        const users = await res.json();
+        const table = document.getElementById("unverifiedTable");
+        table.innerHTML = "";
+        users.forEach(user => {
+          table.innerHTML += `
+            <tr class="border-t">
+              <td class="p-2">${user.email}</td>
+              <td class="p-2 text-center">
+                <button onclick="verifyUser('${user.id}')" class="bg-green-500 text-white px-2 py-1 rounded mr-2">Verify</button>
+                <button onclick="banUser('${user.id}')" class="bg-red-600 text-white px-2 py-1 rounded">Ban</button>
+              </td>
+            </tr>`;
+        });
+      } catch (error) {
+        alert("Failed to load unverified users.");
+      }
+    }
+
+    async function verifyUser(userId) {
+      await fetch(API_BASE + `/verify-user/${userId}`, {
+        method: "POST",
+        headers: apiHeaders()
+      });
+      loadUnverified();
+      alert("User verified.");
+    }
+
+    async function banUser(userId) {
+      await fetch(API_BASE + `/ban/${userId}`, {
+        method: "POST",
+        headers: apiHeaders()
+      });
+      loadUnverified();
+      alert("User banned.");
+    }
+
+    async function loadReports() {
+      try {
+        const res = await fetch(API_BASE + "/reports", { headers: apiHeaders() });
+        const reports = await res.json();
+        const table = document.getElementById("reportTable");
+        table.innerHTML = "";
+        reports.forEach(report => {
+          table.innerHTML += `
+            <tr class="border-t">
+              <td class="p-2">${report.user_id}</td>
+              <td class="p-2">${report.reported_by}</td>
+              <td class="p-2">${report.reason}</td>
+              <td class="p-2">${new Date(report.timestamp).toLocaleString()}</td>
+              <td class="p-2 text-center">
+                <button onclick="banUser('${report.user_id}')" class="bg-red-600 text-white px-2 py-1 rounded">Ban</button>
+              </td>
+            </tr>`;
+        });
+      } catch (error) {
+        alert("Failed to load reports.");
+      }
+    }
+  </script>
+</body>
+</html>

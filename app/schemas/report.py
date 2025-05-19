@@ -26,3 +26,13 @@ class ReportOut(ReportBase):
 
     class Config:
         orm_mode = True
+
+class ReportResponse(ReportBase):
+    report_id: str
+    status: str
+    action_taken: Optional[str]
+    reviewed_by: Optional[str]
+    reviewed_at: Optional[datetime]
+
+    class Config:
+        orm_mode = True
