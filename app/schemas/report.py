@@ -27,12 +27,13 @@ class ReportOut(ReportBase):
     class Config:
         orm_mode = True
 
-class ReportResponse(ReportBase):
+
+class ReportResponse(BaseModel):
     report_id: str
-    status: str
+    user_id: str
+    reported_by: str
+    reason: str
+    status: Optional[str]
     action_taken: Optional[str]
     reviewed_by: Optional[str]
     reviewed_at: Optional[datetime]
-
-    class Config:
-        orm_mode = True

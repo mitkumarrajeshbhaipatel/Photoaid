@@ -44,12 +44,17 @@ def get_dashboard_statistics(db: Session) -> AdminStatsResponse:
 
 def get_all_reports(db: Session) -> list[ReportResponse]:
     reports = db.query(Report).all()
+
     return [
         ReportResponse(
+            report_id=r.report_id,
             user_id=r.target_user_id,
             reported_by=r.reporter_id,
             reason=r.reason,
-            timestamp=r.reviewed_at
+            status=r.status,
+            action_taken=r.action_taken,
+            reviewed_by=r.reviewed_by,
+            reviewed_at=r.reviewed_at,
         )
         for r in reports
     ]
